@@ -65,6 +65,7 @@ t_board *ft_initboard(t_board *board, int len)
 		++row;
 	} */
 //	exit(1);
+//	board->found = 0;
 	return board;
 }
 
@@ -119,61 +120,56 @@ t_board *ft_insert(t_board *board, int col, int row, t_tetris tet)
 
 //x, y is size of the starting board, tet_max how many tets working with
 //t_board	ft_backtrack(t_tetris *coords, int row, int col, int tet_max)
-t_board	*ft_backtrack(t_tetris *coords, t_board *board, int len)
+t_board	*ft_backtrack(t_tetris *coords, t_board *board, int size)
 {
 	int row;
 	int col;
 	t_tetris *tet; //which tet we're placing
 
-	row = 0;
-	col = 0;
-	if (!(coords->tetriminos[0] >= 'A'))
+	if (coords == NULL)
 	{
-		printf("set foun:%c\n", tet->tetriminos[0]);
+//		printf("set foun:%c\n", tet->tetriminos[0]);
 
 		board->found = 1;
 		return (board); //all placed, done!
 	}
 	tet = coords;
-	while (tet->tetriminos[0] >= 'A')
+	row = 0;
+	while (row < size)
 	{
-		//find empty spot
-		//check box, if filled, && more pieces, make bigger box
-		//place the tet & check for fitment
-		while (row < len)
+		col = 0;
+		while (col < size)
 		{
-			col = 0;
-			while (col < len)
+			if(ft_check(board, col, row, *tet) == 1)
 			{
-				if(ft_check(board, col, row, *tet) == 1)
+				ft_insert(board, col, row, *tet);
+				if (ft_backtrack(tet->next, board, size)->found == 1)
 				{
-					board = ft_insert(board, col, row, *tet);
-					printf("check found!! col:%d. row:%d. tet:%c\n", col, row, tet->tetriminos[0]);
-
-					return (ft_backtrack(tet->next, board, len));
+					return(board);
 				}
-				if(board->found == 1)
+				else
 				{
-					printf("board found!! col:%d. row:%d. tet:%c\n", col, row, tet->tetriminos[0]);
-					return (board); 	//if fits return true.
+//					ft_check(board, col, row, *tet);
+					
+					printboard(board);
 				}
-				++col;
+				
+			}
+//			if(board->found == 1)
+			{
+//				printf("board found!! col:%d. row:%d. tet:%c\n", col, row, tet->tetriminos[0]);
+//				return (board); 	//if fits return true.
+			}
+			++col;
 //				printf("test2:col:%d. row:%d. len:%d\n",col,row,len);
 //exit(1);
-			}
-			++row;
-			printf("test3:col:%d. row:%d. len:%d\n\n",col,row,len);
+		}
+		++row;
+//		printf("test3:col:%d. row:%d. len:%d\n\n",col, row, len);
 
-		}
-		if (row >= len ) //check board == full && free board
-		{
-			board = ft_initboard(board, len + 1);
-			printf("board full!! col:%d. row:%d. tet:%c\n", col, row, tet->tetriminos[0]);
-			return ft_backtrack(tet, board, len + 1);
-		}
-		printf("next tet col:%d. row:%d\n", col, row);
-		tet = tet->next;
 	}
+		printf("next tet col:%d. row:%d\n", col, row);
+//		tet = tet->next;
 	printf("do nothing!! col:%d. row:%d. tet:%c\n", col, row, tet->tetriminos[0]);
 	return (board); // 0 == false, 1 == true.
 }
@@ -483,9 +479,33 @@ void		ft_fillit2(int fd)
 	error = ft_errorcheck(head);
 	printf("error: %d\n", error);
 	ft_coordination(head);
-	ft_initboard(board, ft_smallest_size(size));
+	size = ft_smallest_size(size);
+//	ft_initboard(board, size);
 	board->found = 0;
-	ft_backtrack(*head, board, ft_smallest_size(size));
+
+	while(board->found == 0)
+	{
+		ft_initboard(board, size);
+		board->found = 0;
+		ft_backtrack(*head, board, size);
+//		printf("boardfound?:%d\n", (ft_backtrack(*head, board, size))->found);
+		printf("size++%d\n",size);
+		++size;
+/* 		t_tetris *coords = *head;
+		t_tetris *temp = coords;
+		temp = temp->next;
+		printf("tets: even:%d. odd:%d.\n", coords->coord[0], coords->coord[1]);
+		printf("tets: even:%d. odd:%d.\n", coords->coord[2], coords->coord[3]);
+		printf("tets: even:%d. odd:%d.\n", coords->coord[4], coords->coord[5]);
+		printf("tets: even:%d. odd:%d.\n", coords->coord[6], coords->coord[7]);
+
+		printf("tets: even:%d. odd:%d.\n", temp->coord[0], temp->coord[1]);
+		printf("tets: even:%d. odd:%d.\n", temp->coord[2], temp->coord[3]);
+		printf("tets: even:%d. odd:%d.\n", temp->coord[4], temp->coord[5]);
+		printf("tets: even:%d. odd:%d.\n", temp->coord[6], temp->coord[7]); */
+
+	}
+	
 /*	ft_initboard(board, 3);
 
 	int x, y, res;

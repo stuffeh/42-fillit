@@ -31,7 +31,7 @@ typedef struct	s_board
 
 void        ft_updatetet(t_tetris *tet);
 void		ft_recoordi(t_tetris **head);
-t_board     *ft_backtrack(t_tetris *coords, t_board *board, int len);
+t_board     *ft_backtrack(t_tetris *coords, t_board *board, int size);
 
 t_board     *ft_insert(t_board *board, int row, int col, t_tetris tet);
 int         ft_check(t_board *board, int row, int col, t_tetris coords);
