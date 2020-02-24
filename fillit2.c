@@ -11,10 +11,10 @@ void printboard(t_board *board)
 		col = 0;
 		while (col < board->len)
 		{
-			printf("%c ",(board->board[col][row]));
+			ft_putchar(board->board[col][row]);
 			++col;
 		}
-		printf("\n");
+		ft_putchar('\n');
 		++row;
 	}
 }
@@ -51,23 +51,22 @@ t_board *ft_initboard(t_board *board, int len)
 	return board;
 }
 
-int ft_check(t_board *board, int col, int row, t_tetris coords)
+int ft_check(t_board *board, int col, int row, t_tetris tet)
 {
 	int i;
 
 	i = 0;
-	if((col == 0) && (coords.negw < 0))
+	if((col == 0) && (tet.negw < 0))
 		return 0;
- 	if ((coords.width + col > board->len) || (coords.height + row > board->len))
+ 	if ((tet.width + col > board->len) || (tet.height + row > board->len))
 		return 0;
 	while(i < 8)
 	{ 
-		if(board->board[col + coords.coord[i]][row + coords.coord[i + 1]] == '.')
+		if(board->board[col + tet.coord[i]][row + tet.coord[i + 1]] == '.')
 			i += 2;
 		else 
 			return 0;
 	}
-	ft_insert(board, col, row, coords);
 	return 1;
 }
 
@@ -84,11 +83,41 @@ t_board *ft_insert(t_board *board, int col, int row, t_tetris tet)
 	return (board);
 }
 
+t_board *ft_rmpiece(t_board *board, t_tetris tet)
+{
+	int	row;
+	int	col;
+	int count;
+
+	row = 0;
+	count = 0;
+	while(row < board->len)
+	{
+		col = 0;
+		while(col < board->len)
+		{
+			if(board->board[col][row] == tet.tetriminos[0])
+			{
+				board->board[col][row] = '.';
+				++count;
+			}
+			if (count == 4)
+			{
+				return (board);
+			}
+			++col;
+		}
+		++row;
+	}
+	return (board);
+}
+
 t_board	*ft_backtrack(t_tetris *coords, t_board *board, int size)
 {
 	int			row;
 	int			col;
 	t_tetris	*tet;
+	t_board 	temp;
 
 	if (!coords->next)
 	{
@@ -103,8 +132,21 @@ t_board	*ft_backtrack(t_tetris *coords, t_board *board, int size)
 		while (col < size)
 		{
 			if(ft_check(board, col, row, *tet) == 1)
+			{
+//				temp = *board;
+				ft_insert(board, col, row, *tet);
+//				if (ft_backtrack(tet->next, &temp, size)->found == 1)
 				if (ft_backtrack(tet->next, board, size)->found == 1)
+				{
+					
 					return(board);
+				}
+				else
+				{
+					ft_rmpiece(board, *tet);
+				}
+				
+			}
 			++col;
 		}
 		++row;
@@ -418,7 +460,6 @@ void		ft_fillit2(int fd)
 		++size;
 	}
 	printboard(board);
-//	while(*head)
 	free_structure(*head);
 }
 
